@@ -1,6 +1,6 @@
 'use client';
-import React, { useState } from 'react';
-import { Button, Input } from '@heroui/react';
+import React, { useMemo, useState } from 'react';
+import { Button, Input, Card, Divider, Badge } from '@heroui/react';
 
 type Question = {
   id: number;
@@ -36,143 +36,221 @@ export default function ClientQuestionManager() {
     content: '',
     category: 'Category 1',
   });
+  const [search, setSearch] = useState('');
+  const [filterCategory, setFilterCategory] = useState<string | 'all'>('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
-  function handleInputChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) {
-    setNewQuestion({ ...newQuestion, [e.target.name]: e.target.value });
-  }
+  // inputs are wired inline via setNewQuestion
 
   // (Select replaced with native select; no special handler needed)
 
   function handleAddQuestion() {
-    setQuestions([...questions, { id: Date.now(), ...newQuestion }]);
+    if (editingId) {
+      setQuestions(
+        questions.map((q) =>
+          q.id === editingId ? { ...q, ...newQuestion } : q
+        )
+      );
+    } else {
+      setQuestions([...questions, { id: Date.now(), ...newQuestion }]);
+    }
     setNewQuestion({ title: '', content: '', category: 'Category 1' });
+    setIsModalOpen(false);
+    setEditingId(null);
   }
+
+  function openNewModal() {
+    setEditingId(null);
+    setNewQuestion({ title: '', content: '', category: 'Category 1' });
+    setIsModalOpen(true);
+  }
+
+  function openEditModal(id: number) {
+    const q = questions.find((x) => x.id === id);
+    if (!q) return;
+    setEditingId(id);
+    setNewQuestion({
+      title: q.title,
+      content: q.content,
+      category: q.category,
+    });
+    setIsModalOpen(true);
+  }
+
+  const filtered = useMemo(() => {
+    return questions.filter((q) => {
+      const matchesSearch =
+        q.title.toLowerCase().includes(search.toLowerCase()) ||
+        q.content.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory =
+        filterCategory === 'all' || q.category === filterCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [questions, search, filterCategory]);
 
   return (
     <main style={{ padding: '2rem' }}>
-      <h1>Question Management (HeroUI)</h1>
-      <form
+      <div
         style={{
           display: 'flex',
-          gap: '1rem',
-          marginBottom: '2rem',
+          justifyContent: 'space-between',
           alignItems: 'center',
-        }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleAddQuestion();
+          marginBottom: 16,
         }}
       >
-        <Input
-          name='title'
-          placeholder='Question Title'
-          value={newQuestion.title}
-          onChange={handleInputChange}
-          required
-        />
-        <Input
-          name='content'
-          placeholder='Question Content'
-          value={newQuestion.content}
-          onChange={handleInputChange}
-          required
-        />
+        <div>
+          <h1 style={{ margin: 0 }}>Question Management</h1>
+          <div style={{ marginTop: 6 }}>
+            <Badge color='primary'>{questions.length} questions</Badge>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Input
+            placeholder='Search questions...'
+            value={search}
+            onChange={(e) => setSearch((e.target as HTMLInputElement).value)}
+          />
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            style={{ padding: 8, borderRadius: 6 }}
+          >
+            <option value='all'>All Categories</option>
+            {categories.map((c) => (
+              <option key={c.key} value={c.key}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          <Button onClick={openNewModal}>Add Question</Button>
+        </div>
+      </div>
 
-        {/* Use HeroUI Select with defensive handler */}
-        <select
-          name='category'
-          value={newQuestion.category}
-          onChange={(e) =>
-            setNewQuestion({ ...newQuestion, category: e.target.value })
-          }
-          required
-          style={{ padding: '0.5rem', borderRadius: 4 }}
+      <Card>
+        <div style={{ padding: 12 }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 12 }}>Title</th>
+                  <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 12 }}>Content</th>
+                  <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 12 }}>Category</th>
+                  <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 12 }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((q) => (
+                  <tr key={q.id}>
+                    <td style={{ padding: 12, borderBottom: '1px solid #eee' }}>{q.title}</td>
+                    <td style={{ padding: 12, borderBottom: '1px solid #eee' }}>{q.content}</td>
+                    <td style={{ padding: 12, borderBottom: '1px solid #eee' }}>{q.category}</td>
+                    <td style={{ padding: 12, borderBottom: '1px solid #eee' }}>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <Button size='sm' variant='bordered' onClick={() => openEditModal(q.id)}>
+                          Edit
+                        </Button>
+                        <Button size='sm' variant='flat' color='danger' onClick={() => setQuestions(questions.filter((x) => x.id !== q.id))}>
+                          Delete
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Card>
+
+      <Divider />
+
+      {/* Modal (simple overlay) */}
+      {isModalOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 60,
+          }}
+          onClick={() => setIsModalOpen(false)}
         >
-          {categories.map((c) => (
-            <option key={c.key} value={c.key}>
-              {c.label}
-            </option>
-          ))}
-        </select>
-
-        <Button type='submit'>Add Question</Button>
-      </form>
-
-      {/* Use native table here to avoid HeroUI Table SSR/structure issues */}
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th
+          <div
+            style={{
+              width: 640,
+              background: 'white',
+              borderRadius: 8,
+              padding: 20,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ marginTop: 0 }}>
+              {editingId ? 'Edit Question' : 'New Question'}
+            </h2>
+            <div style={{ display: 'grid', gap: 8 }}>
+              <Input
+                name='title'
+                placeholder='Title'
+                value={newQuestion.title}
+                onChange={(e) =>
+                  setNewQuestion({
+                    ...newQuestion,
+                    title: (e.target as HTMLInputElement).value,
+                  })
+                }
+              />
+              <Input
+                name='content'
+                placeholder='Content'
+                value={newQuestion.content}
+                onChange={(e) =>
+                  setNewQuestion({
+                    ...newQuestion,
+                    content: (e.target as HTMLInputElement).value,
+                  })
+                }
+              />
+              <select
+                value={newQuestion.category}
+                onChange={(e) =>
+                  setNewQuestion({ ...newQuestion, category: e.target.value })
+                }
+              >
+                {categories.map((c) => (
+                  <option key={c.key} value={c.key}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div
               style={{
-                textAlign: 'left',
-                borderBottom: '1px solid #ddd',
-                padding: '8px',
+                display: 'flex',
+                gap: 8,
+                justifyContent: 'flex-end',
+                marginTop: 12,
               }}
             >
-              Title
-            </th>
-            <th
-              style={{
-                textAlign: 'left',
-                borderBottom: '1px solid #ddd',
-                padding: '8px',
-              }}
-            >
-              Content
-            </th>
-            <th
-              style={{
-                textAlign: 'left',
-                borderBottom: '1px solid #ddd',
-                padding: '8px',
-              }}
-            >
-              Category
-            </th>
-            <th
-              style={{
-                textAlign: 'left',
-                borderBottom: '1px solid #ddd',
-                padding: '8px',
-              }}
-            >
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {questions.map((q) => (
-            <tr key={q.id}>
-              <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
-                {q.title}
-              </td>
-              <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
-                {q.content}
-              </td>
-              <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
-                {q.category}
-              </td>
-              <td
-                style={{
-                  padding: '8px',
-                  borderBottom: '1px solid #eee',
-                  display: 'flex',
-                  gap: '0.5rem',
+              <Button
+                variant='flat'
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setEditingId(null);
                 }}
               >
-                <Button size='sm' variant='bordered' disabled>
-                  Edit
-                </Button>
-                <Button size='sm' variant='flat' color='danger' disabled>
-                  Delete
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                Cancel
+              </Button>
+              <Button onClick={handleAddQuestion}>
+                {editingId ? 'Save' : 'Add'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
