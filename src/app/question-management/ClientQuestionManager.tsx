@@ -1,6 +1,6 @@
 'use client';
 import React, { useMemo, useState } from 'react';
-import { Button, Input, Card, Divider, Badge } from '@heroui/react';
+import { Button, Input, Card, Badge, Select, SelectItem } from '@heroui/react';
 
 type Question = {
   id: number;
@@ -38,6 +38,7 @@ export default function ClientQuestionManager() {
   });
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState<string | 'all'>('all');
+  const [showDeleteId, setShowDeleteId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
@@ -110,47 +111,69 @@ export default function ClientQuestionManager() {
             placeholder='Search questions...'
             value={search}
             onChange={(e) => setSearch((e.target as HTMLInputElement).value)}
+            className='w-40'
           />
-          <select
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            style={{ padding: 8, borderRadius: 6 }}
+          <Select
+            items={[{ key: 'all', label: 'All Categories' }, ...categories]}
+            selectedKeys={new Set([filterCategory])}
+            onSelectionChange={(keys) => {
+              const key = Array.isArray(keys) ? keys[0] : keys;
+              setFilterCategory(String(key));
+            }}
+            className='w-40'
           >
-            <option value='all'>All Categories</option>
-            {categories.map((c) => (
-              <option key={c.key} value={c.key}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-          <Button onClick={openNewModal}>Add Question</Button>
+            {[{ key: 'all', label: 'All Categories' }, ...categories].map(
+              (item) => (
+                <SelectItem key={item.key}>{item.label}</SelectItem>
+              )
+            )}
+          </Select>
+          <Button onClick={openNewModal} className='ml-2'>
+            Add Question
+          </Button>
         </div>
       </div>
 
-      <Card>
-        <div style={{ padding: 12 }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <Card className='p-4'>
+        {filtered.length === 0 ? (
+          <div className='flex flex-col items-center justify-center py-12'>
+            <div className='text-lg text-gray-500 mb-4'>
+              No questions found.
+            </div>
+            <Button onClick={openNewModal}>Add your first question</Button>
+          </div>
+        ) : (
+          <div className='overflow-x-auto'>
+            <table className='w-full border-collapse text-sm'>
               <thead>
-                <tr>
-                  <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 12 }}>Title</th>
-                  <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 12 }}>Content</th>
-                  <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 12 }}>Category</th>
-                  <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 12 }}>Actions</th>
+                <tr className='bg-gray-50'>
+                  <th className='text-left border-b px-4 py-3'>Title</th>
+                  <th className='text-left border-b px-4 py-3'>Content</th>
+                  <th className='text-left border-b px-4 py-3'>Category</th>
+                  <th className='text-left border-b px-4 py-3'>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((q) => (
-                  <tr key={q.id}>
-                    <td style={{ padding: 12, borderBottom: '1px solid #eee' }}>{q.title}</td>
-                    <td style={{ padding: 12, borderBottom: '1px solid #eee' }}>{q.content}</td>
-                    <td style={{ padding: 12, borderBottom: '1px solid #eee' }}>{q.category}</td>
-                    <td style={{ padding: 12, borderBottom: '1px solid #eee' }}>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <Button size='sm' variant='bordered' onClick={() => openEditModal(q.id)}>
+                  <tr key={q.id} className='hover:bg-gray-100 transition'>
+                    <td className='px-4 py-3 border-b'>{q.title}</td>
+                    <td className='px-4 py-3 border-b'>{q.content}</td>
+                    <td className='px-4 py-3 border-b'>{q.category}</td>
+                    <td className='px-4 py-3 border-b'>
+                      <div className='flex gap-2'>
+                        <Button
+                          size='sm'
+                          variant='bordered'
+                          onClick={() => openEditModal(q.id)}
+                        >
                           Edit
                         </Button>
-                        <Button size='sm' variant='flat' color='danger' onClick={() => setQuestions(questions.filter((x) => x.id !== q.id))}>
+                        <Button
+                          size='sm'
+                          variant='flat'
+                          color='danger'
+                          onClick={() => setShowDeleteId(q.id)}
+                        >
                           Delete
                         </Button>
                       </div>
@@ -160,38 +183,22 @@ export default function ClientQuestionManager() {
               </tbody>
             </table>
           </div>
-        </div>
+        )}
       </Card>
 
-      <Divider />
-
-      {/* Modal (simple overlay) */}
       {isModalOpen && (
         <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 60,
-          }}
+          className='fixed inset-0 bg-black/40 flex items-center justify-center z-50'
           onClick={() => setIsModalOpen(false)}
         >
-          <div
-            style={{
-              width: 640,
-              background: 'white',
-              borderRadius: 8,
-              padding: 20,
-            }}
+          <Card
+            className='max-w-lg mx-auto p-6'
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 style={{ marginTop: 0 }}>
+            <h2 className='text-xl font-semibold mb-4'>
               {editingId ? 'Edit Question' : 'New Question'}
             </h2>
-            <div style={{ display: 'grid', gap: 8 }}>
+            <div className='grid gap-4'>
               <Input
                 name='title'
                 placeholder='Title'
@@ -214,27 +221,21 @@ export default function ClientQuestionManager() {
                   })
                 }
               />
-              <select
-                value={newQuestion.category}
-                onChange={(e) =>
-                  setNewQuestion({ ...newQuestion, category: e.target.value })
-                }
+              <Select
+                items={categories}
+                selectedKeys={new Set([newQuestion.category])}
+                onSelectionChange={(keys) => {
+                  const key = Array.isArray(keys) ? keys[0] : keys;
+                  setNewQuestion({ ...newQuestion, category: String(key) });
+                }}
+                className='w-full'
               >
-                {categories.map((c) => (
-                  <option key={c.key} value={c.key}>
-                    {c.label}
-                  </option>
+                {categories.map((item) => (
+                  <SelectItem key={item.key}>{item.label}</SelectItem>
                 ))}
-              </select>
+              </Select>
             </div>
-            <div
-              style={{
-                display: 'flex',
-                gap: 8,
-                justifyContent: 'flex-end',
-                marginTop: 12,
-              }}
-            >
+            <div className='flex gap-2 justify-end mt-6'>
               <Button
                 variant='flat'
                 onClick={() => {
@@ -248,7 +249,38 @@ export default function ClientQuestionManager() {
                 {editingId ? 'Save' : 'Add'}
               </Button>
             </div>
-          </div>
+          </Card>
+        </div>
+      )}
+      {showDeleteId && (
+        <div
+          className='fixed inset-0 bg-black/40 flex items-center justify-center z-50'
+          onClick={() => setShowDeleteId(null)}
+        >
+          <Card
+            className='max-w-md mx-auto p-6'
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className='text-lg font-semibold mb-4'>Delete Question?</h2>
+            <p className='mb-6'>
+              Are you sure you want to delete this question? This action cannot
+              be undone.
+            </p>
+            <div className='flex gap-2 justify-end'>
+              <Button variant='flat' onClick={() => setShowDeleteId(null)}>
+                Cancel
+              </Button>
+              <Button
+                color='danger'
+                onClick={() => {
+                  setQuestions(questions.filter((x) => x.id !== showDeleteId));
+                  setShowDeleteId(null);
+                }}
+              >
+                Delete
+              </Button>
+            </div>
+          </Card>
         </div>
       )}
     </main>
