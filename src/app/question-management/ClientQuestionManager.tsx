@@ -1,6 +1,7 @@
 'use client';
 import React, { useMemo, useState } from 'react';
 import { Button, Input, Card, Badge, Select, SelectItem } from '@heroui/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Question = {
   id: number;
@@ -128,9 +129,11 @@ export default function ClientQuestionManager() {
               )
             )}
           </Select>
-          <Button onClick={openNewModal} className='ml-2'>
-            Add Question
-          </Button>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button onClick={openNewModal} className='ml-2'>
+              Add Question
+            </Button>
+          </motion.div>
         </div>
       </div>
 
@@ -140,7 +143,9 @@ export default function ClientQuestionManager() {
             <div className='text-lg text-gray-500 mb-4'>
               No questions found.
             </div>
-            <Button onClick={openNewModal}>Add your first question</Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button onClick={openNewModal}>Add your first question</Button>
+            </motion.div>
           </div>
         ) : (
           <div className='overflow-x-auto'>
@@ -161,21 +166,31 @@ export default function ClientQuestionManager() {
                     <td className='px-4 py-3 border-b'>{q.category}</td>
                     <td className='px-4 py-3 border-b'>
                       <div className='flex gap-2'>
-                        <Button
-                          size='sm'
-                          variant='bordered'
-                          onClick={() => openEditModal(q.id)}
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                         >
-                          Edit
-                        </Button>
-                        <Button
-                          size='sm'
-                          variant='flat'
-                          color='danger'
-                          onClick={() => setShowDeleteId(q.id)}
+                          <Button
+                            size='sm'
+                            variant='bordered'
+                            onClick={() => openEditModal(q.id)}
+                          >
+                            Edit
+                          </Button>
+                        </motion.div>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                         >
-                          Delete
-                        </Button>
+                          <Button
+                            size='sm'
+                            variant='flat'
+                            color='danger'
+                            onClick={() => setShowDeleteId(q.id)}
+                          >
+                            Delete
+                          </Button>
+                        </motion.div>
                       </div>
                     </td>
                   </tr>
@@ -186,109 +201,201 @@ export default function ClientQuestionManager() {
         )}
       </Card>
 
-      {isModalOpen && (
-        <div
-          className='fixed inset-0 bg-black/40 flex items-center justify-center z-50'
-          onClick={() => setIsModalOpen(false)}
-        >
-          <Card
-            className='max-w-2xl mx-auto p-6'
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className='fixed inset-0 bg-black/40 flex items-center justify-center z-50'
+            onClick={() => setIsModalOpen(false)}
           >
-            <div onClick={(e) => e.stopPropagation()}>
-              <h2 className='text-xl font-semibold mb-4'>
-                {editingId ? 'Edit Question' : 'New Question'}
-              </h2>
-              <div className='grid gap-4'>
-                <Input
-                  name='title'
-                  placeholder='Title'
-                  value={newQuestion.title}
-                  onChange={(e) =>
-                    setNewQuestion({
-                      ...newQuestion,
-                      title: (e.target as HTMLInputElement).value,
-                    })
-                  }
-                />
-                <Input
-                  name='content'
-                  placeholder='Content'
-                  value={newQuestion.content}
-                  onChange={(e) =>
-                    setNewQuestion({
-                      ...newQuestion,
-                      content: (e.target as HTMLInputElement).value,
-                    })
-                  }
-                />
-                <Select
-                  items={categories}
-                  selectedKeys={new Set([newQuestion.category])}
-                  onSelectionChange={(keys) => {
-                    const key = Array.isArray(keys) ? keys[0] : keys;
-                    setNewQuestion({ ...newQuestion, category: String(key) });
-                  }}
-                  className='w-full'
-                >
-                  {categories.map((item) => (
-                    <SelectItem key={item.key}>{item.label}</SelectItem>
-                  ))}
-                </Select>
-              </div>
-              <div className='flex gap-2 justify-end mt-6'>
-                <Button
-                  variant='flat'
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    setEditingId(null);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleAddQuestion}>
-                  {editingId ? 'Save' : 'Add'}
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
-      {showDeleteId && (
-        <div
-          className='fixed inset-0 bg-black/40 flex items-center justify-center z-50'
-          onClick={() => setShowDeleteId(null)}
-        >
-          <Card
-            className='max-w-md mx-auto p-6'
-            onClick={(e) => e.stopPropagation()}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{
+                type: 'spring',
+                damping: 25,
+                stiffness: 300,
+                duration: 0.3,
+              }}
+              className='max-w-2xl mx-auto'
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Card className='p-6'>
+                <div onClick={(e) => e.stopPropagation()}>
+                  <motion.h2
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.3 }}
+                    className='text-xl font-semibold mb-4'
+                  >
+                    {editingId ? 'Edit Question' : 'New Question'}
+                  </motion.h2>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.3 }}
+                    className='grid gap-4'
+                  >
+                    <Input
+                      name='title'
+                      placeholder='Title'
+                      value={newQuestion.title}
+                      onChange={(e) =>
+                        setNewQuestion({
+                          ...newQuestion,
+                          title: (e.target as HTMLInputElement).value,
+                        })
+                      }
+                    />
+                    <Input
+                      name='content'
+                      placeholder='Content'
+                      value={newQuestion.content}
+                      onChange={(e) =>
+                        setNewQuestion({
+                          ...newQuestion,
+                          content: (e.target as HTMLInputElement).value,
+                        })
+                      }
+                    />
+                    <Select
+                      items={categories}
+                      selectedKeys={new Set([newQuestion.category])}
+                      onSelectionChange={(keys) => {
+                        const key = Array.isArray(keys) ? keys[0] : keys;
+                        setNewQuestion({
+                          ...newQuestion,
+                          category: String(key),
+                        });
+                      }}
+                      className='w-full'
+                    >
+                      {categories.map((item) => (
+                        <SelectItem key={item.key}>{item.label}</SelectItem>
+                      ))}
+                    </Select>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.3 }}
+                    className='flex gap-2 justify-end mt-6'
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        variant='flat'
+                        onClick={() => {
+                          setIsModalOpen(false);
+                          setEditingId(null);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </motion.div>
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button onClick={handleAddQuestion}>
+                        {editingId ? 'Save' : 'Add'}
+                      </Button>
+                    </motion.div>
+                  </motion.div>
+                </div>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showDeleteId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className='fixed inset-0 bg-black/40 flex items-center justify-center z-50'
+            onClick={() => setShowDeleteId(null)}
           >
-            <div onClick={(e) => e.stopPropagation()}>
-              <h2 className='text-lg font-semibold mb-4'>Delete Question?</h2>
-              <p className='mb-6'>
-                Are you sure you want to delete this question? This action
-                cannot be undone.
-              </p>
-              <div className='flex gap-2 justify-end'>
-                <Button variant='flat' onClick={() => setShowDeleteId(null)}>
-                  Cancel
-                </Button>
-                <Button
-                  color='danger'
-                  onClick={() => {
-                    setQuestions(
-                      questions.filter((x) => x.id !== showDeleteId)
-                    );
-                    setShowDeleteId(null);
-                  }}
-                >
-                  Delete
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{
+                type: 'spring',
+                damping: 25,
+                stiffness: 300,
+                duration: 0.3,
+              }}
+              className='max-w-md mx-auto'
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Card className='p-6'>
+                <div onClick={(e) => e.stopPropagation()}>
+                  <motion.h2
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.3 }}
+                    className='text-lg font-semibold mb-4'
+                  >
+                    Delete Question?
+                  </motion.h2>
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.3 }}
+                    className='mb-6'
+                  >
+                    Are you sure you want to delete this question? This action
+                    cannot be undone.
+                  </motion.p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.3 }}
+                    className='flex gap-2 justify-end'
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        variant='flat'
+                        onClick={() => setShowDeleteId(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </motion.div>
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        color='danger'
+                        onClick={() => {
+                          setQuestions(
+                            questions.filter((x) => x.id !== showDeleteId)
+                          );
+                          setShowDeleteId(null);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </motion.div>
+                  </motion.div>
+                </div>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
