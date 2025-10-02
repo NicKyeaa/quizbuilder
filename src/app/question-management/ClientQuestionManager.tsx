@@ -148,8 +148,8 @@ export default function ClientQuestionManager() {
             items={[{ key: 'all', label: 'All Categories' }, ...categories]}
             selectedKeys={new Set([filterCategory])}
             onSelectionChange={(keys) => {
-              const key = Array.isArray(keys) ? keys[0] : keys;
-              setFilterCategory(String(key));
+              const selectedValue = Array.from(keys)[0];
+              setFilterCategory(String(selectedValue));
             }}
             className='w-40'
           >
@@ -300,10 +300,10 @@ export default function ClientQuestionManager() {
                       items={categories}
                       selectedKeys={new Set([newQuestion.category])}
                       onSelectionChange={(keys) => {
-                        const key = Array.isArray(keys) ? keys[0] : keys;
+                        const selectedValue = Array.from(keys)[0];
                         setNewQuestion({
                           ...newQuestion,
-                          category: String(key),
+                          category: String(selectedValue),
                         });
                       }}
                       className='w-full'

@@ -14,6 +14,9 @@ export default function NavMenu() {
         position: 'relative',
       }}
     >
+      <Button as={Link} href='/' style={{ marginRight: '1rem' }}>
+        Home
+      </Button>
       <Button as={Link} href='/question-management'>
         Question Management
       </Button>

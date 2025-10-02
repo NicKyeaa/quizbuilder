@@ -1,6 +1,7 @@
 'use client';
 import { HeroUIProvider } from '@heroui/react';
 import { ThemeProvider } from './ThemeContext';
+import NavMenu from './components/NavMenu';
 
 export default function ClientLayout({
   children,
@@ -9,7 +10,10 @@ export default function ClientLayout({
 }) {
   return (
     <ThemeProvider>
-      <HeroUIProvider>{children}</HeroUIProvider>
+      <HeroUIProvider>
+        <NavMenu />
+        {children}
+      </HeroUIProvider>
     </ThemeProvider>
   );
 }
