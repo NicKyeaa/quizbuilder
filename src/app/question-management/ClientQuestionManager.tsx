@@ -91,6 +91,36 @@ export default function ClientQuestionManager() {
     });
   }, [questions, search, filterCategory]);
 
+  // Function to highlight search terms
+  const highlightText = (text: string, searchTerm: string) => {
+    if (!searchTerm.trim()) return text;
+
+    const regex = new RegExp(
+      `(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`,
+      'gi'
+    );
+    const parts = text.split(regex);
+
+    return parts.map((part, index) =>
+      regex.test(part) ? (
+        <mark
+          key={index}
+          style={{
+            backgroundColor: 'rgb(196, 181, 253)',
+            color: '#1f2937',
+            padding: '0.125rem 0.25rem',
+            borderRadius: '0.125rem',
+            fontWeight: '500',
+          }}
+        >
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
     <main style={{ padding: '2rem' }}>
       <div
@@ -161,8 +191,12 @@ export default function ClientQuestionManager() {
               <tbody>
                 {filtered.map((q) => (
                   <tr key={q.id} className='hover:bg-gray-100 transition'>
-                    <td className='px-4 py-3 border-b'>{q.title}</td>
-                    <td className='px-4 py-3 border-b'>{q.content}</td>
+                    <td className='px-4 py-3 border-b'>
+                      {highlightText(q.title, search)}
+                    </td>
+                    <td className='px-4 py-3 border-b'>
+                      {highlightText(q.content, search)}
+                    </td>
                     <td className='px-4 py-3 border-b'>{q.category}</td>
                     <td className='px-4 py-3 border-b'>
                       <div className='flex gap-2'>
@@ -221,10 +255,10 @@ export default function ClientQuestionManager() {
                 stiffness: 300,
                 duration: 0.3,
               }}
-              className='max-w-2xl mx-auto'
+              className='max-w-3xl mx-auto'
               onClick={(e) => e.stopPropagation()}
             >
-              <Card className='p-6'>
+              <Card className='p-6 w-full'>
                 <div onClick={(e) => e.stopPropagation()}>
                   <motion.h2
                     initial={{ opacity: 0, y: -10 }}
@@ -334,10 +368,10 @@ export default function ClientQuestionManager() {
                 stiffness: 300,
                 duration: 0.3,
               }}
-              className='max-w-md mx-auto'
+              className='max-w-lg mx-auto'
               onClick={(e) => e.stopPropagation()}
             >
-              <Card className='p-6'>
+              <Card className='p-6 w-full'>
                 <div onClick={(e) => e.stopPropagation()}>
                   <motion.h2
                     initial={{ opacity: 0, y: -10 }}

@@ -85,6 +85,16 @@ This document outlines the design principles, animation guidelines, and user exp
 - **Menu Expansion**: Smooth height/width transitions
 - **Breadcrumb Navigation**: Animate path changes
 
+### Tables & Data Display
+
+- **Search Highlighting**: Use violet background for search term highlighting
+  - Inline styles: `backgroundColor: 'rgb(196, 181, 253)', color: '#1f2937', padding: '0.125rem 0.25rem', borderRadius: '0.125rem', fontWeight: '500'`
+  - Apply to all table cells containing searchable text
+  - Ensures consistent rendering across all browsers
+- **Row Hover**: Subtle background color change on table row hover
+- **Sorting Indicators**: Clear visual indicators for sortable columns
+- **Empty States**: Friendly messaging with clear call-to-action buttons
+
 ## Technical Implementation
 
 ### Framer Motion Best Practices
