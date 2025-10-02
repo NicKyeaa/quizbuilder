@@ -91,8 +91,13 @@ export default function ClientQuestionManager() {
 
     // Validate answer fields based on question type
     if (newQuestion.type === 'ABCD type') {
-      if (!newQuestion.answers || newQuestion.answers.some(answer => !answer.trim())) {
-        alert('All 4 answer options (A, B, C, D) are required for ABCD type questions.');
+      if (
+        !newQuestion.answers ||
+        newQuestion.answers.some((answer) => !answer.trim())
+      ) {
+        alert(
+          'All 4 answer options (A, B, C, D) are required for ABCD type questions.'
+        );
         return;
       }
     } else {
@@ -295,8 +300,7 @@ export default function ClientQuestionManager() {
                               {String.fromCharCode(65 + index)}: {answer}
                             </div>
                           ))
-                        : q.answer
-                      }
+                        : q.answer}
                     </td>
                     <td className='px-4 py-3 border-b'>
                       <div className='flex gap-2'>
@@ -438,7 +442,9 @@ export default function ClientQuestionManager() {
                     </Select>
                     {newQuestion.type === 'ABCD type' ? (
                       <div className='space-y-2'>
-                        <h4 className='text-sm font-medium'>Answer Options *</h4>
+                        <h4 className='text-sm font-medium'>
+                          Answer Options *
+                        </h4>
                         {['A', 'B', 'C', 'D'].map((letter, index) => (
                           <Input
                             key={letter}
@@ -448,7 +454,9 @@ export default function ClientQuestionManager() {
                               setNewQuestion({
                                 ...newQuestion,
                                 answers: newQuestion.answers?.map((ans, i) =>
-                                  i === index ? (e.target as HTMLInputElement).value : ans
+                                  i === index
+                                    ? (e.target as HTMLInputElement).value
+                                    : ans
                                 ) || ['', '', '', ''],
                               })
                             }
