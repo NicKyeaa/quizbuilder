@@ -26,8 +26,20 @@ const initialQuestions: Question[] = [
 ];
 
 const categories = [
-  { key: 'Category 1', label: 'Category 1' },
-  { key: 'Category 2', label: 'Category 2' },
+  { key: 'Povijest', label: 'Povijest' },
+  { key: 'Geografija', label: 'Geografija' },
+  { key: 'Matematika', label: 'Matematika' },
+  { key: 'Priroda', label: 'Priroda' },
+  { key: 'Sport', label: 'Sport' },
+  { key: 'Zabava', label: 'Zabava' },
+  { key: 'Umjetnost', label: 'Umjetnost' },
+  { key: 'Glazba', label: 'Glazba' },
+  { key: 'Znanost', label: 'Znanost' },
+  { key: 'Tehnologija', label: 'Tehnologija' },
+  { key: 'Literatura', label: 'Literatura' },
+  { key: 'Film', label: 'Film' },
+  { key: 'Glazba', label: 'Glazba' },
+  { key: 'Sport', label: 'Sport' },
 ];
 
 export default function ClientQuestionManager() {
