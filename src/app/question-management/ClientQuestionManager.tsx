@@ -192,62 +192,64 @@ export default function ClientQuestionManager() {
           onClick={() => setIsModalOpen(false)}
         >
           <Card
-            className='max-w-lg mx-auto p-6'
+            className='max-w-2xl mx-auto p-6'
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className='text-xl font-semibold mb-4'>
-              {editingId ? 'Edit Question' : 'New Question'}
-            </h2>
-            <div className='grid gap-4'>
-              <Input
-                name='title'
-                placeholder='Title'
-                value={newQuestion.title}
-                onChange={(e) =>
-                  setNewQuestion({
-                    ...newQuestion,
-                    title: (e.target as HTMLInputElement).value,
-                  })
-                }
-              />
-              <Input
-                name='content'
-                placeholder='Content'
-                value={newQuestion.content}
-                onChange={(e) =>
-                  setNewQuestion({
-                    ...newQuestion,
-                    content: (e.target as HTMLInputElement).value,
-                  })
-                }
-              />
-              <Select
-                items={categories}
-                selectedKeys={new Set([newQuestion.category])}
-                onSelectionChange={(keys) => {
-                  const key = Array.isArray(keys) ? keys[0] : keys;
-                  setNewQuestion({ ...newQuestion, category: String(key) });
-                }}
-                className='w-full'
-              >
-                {categories.map((item) => (
-                  <SelectItem key={item.key}>{item.label}</SelectItem>
-                ))}
-              </Select>
-            </div>
-            <div className='flex gap-2 justify-end mt-6'>
-              <Button
-                variant='flat'
-                onClick={() => {
-                  setIsModalOpen(false);
-                  setEditingId(null);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleAddQuestion}>
-                {editingId ? 'Save' : 'Add'}
-              </Button>
+            <div onClick={(e) => e.stopPropagation()}>
+              <h2 className='text-xl font-semibold mb-4'>
+                {editingId ? 'Edit Question' : 'New Question'}
+              </h2>
+              <div className='grid gap-4'>
+                <Input
+                  name='title'
+                  placeholder='Title'
+                  value={newQuestion.title}
+                  onChange={(e) =>
+                    setNewQuestion({
+                      ...newQuestion,
+                      title: (e.target as HTMLInputElement).value,
+                    })
+                  }
+                />
+                <Input
+                  name='content'
+                  placeholder='Content'
+                  value={newQuestion.content}
+                  onChange={(e) =>
+                    setNewQuestion({
+                      ...newQuestion,
+                      content: (e.target as HTMLInputElement).value,
+                    })
+                  }
+                />
+                <Select
+                  items={categories}
+                  selectedKeys={new Set([newQuestion.category])}
+                  onSelectionChange={(keys) => {
+                    const key = Array.isArray(keys) ? keys[0] : keys;
+                    setNewQuestion({ ...newQuestion, category: String(key) });
+                  }}
+                  className='w-full'
+                >
+                  {categories.map((item) => (
+                    <SelectItem key={item.key}>{item.label}</SelectItem>
+                  ))}
+                </Select>
+              </div>
+              <div className='flex gap-2 justify-end mt-6'>
+                <Button
+                  variant='flat'
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setEditingId(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleAddQuestion}>
+                  {editingId ? 'Save' : 'Add'}
+                </Button>
+              </div>
             </div>
           </Card>
         </div>
@@ -261,24 +263,28 @@ export default function ClientQuestionManager() {
             className='max-w-md mx-auto p-6'
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className='text-lg font-semibold mb-4'>Delete Question?</h2>
-            <p className='mb-6'>
-              Are you sure you want to delete this question? This action cannot
-              be undone.
-            </p>
-            <div className='flex gap-2 justify-end'>
-              <Button variant='flat' onClick={() => setShowDeleteId(null)}>
-                Cancel
-              </Button>
-              <Button
-                color='danger'
-                onClick={() => {
-                  setQuestions(questions.filter((x) => x.id !== showDeleteId));
-                  setShowDeleteId(null);
-                }}
-              >
-                Delete
-              </Button>
+            <div onClick={(e) => e.stopPropagation()}>
+              <h2 className='text-lg font-semibold mb-4'>Delete Question?</h2>
+              <p className='mb-6'>
+                Are you sure you want to delete this question? This action
+                cannot be undone.
+              </p>
+              <div className='flex gap-2 justify-end'>
+                <Button variant='flat' onClick={() => setShowDeleteId(null)}>
+                  Cancel
+                </Button>
+                <Button
+                  color='danger'
+                  onClick={() => {
+                    setQuestions(
+                      questions.filter((x) => x.id !== showDeleteId)
+                    );
+                    setShowDeleteId(null);
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
           </Card>
         </div>
