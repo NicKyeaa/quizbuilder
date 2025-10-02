@@ -8,6 +8,7 @@ type Question = {
   title: string;
   content: string;
   category: string;
+  type: string;
 };
 
 const initialQuestions: Question[] = [
@@ -16,12 +17,14 @@ const initialQuestions: Question[] = [
     title: 'What is the capital of France?',
     content: 'Choose the correct answer.',
     category: 'Category 1',
+    type: 'ABCD type',
   },
   {
     id: 2,
     title: 'Who wrote Hamlet?',
     content: 'Select the author.',
     category: 'Category 2',
+    type: 'ABCD type',
   },
 ];
 
@@ -42,15 +45,24 @@ const categories = [
   { key: 'Sport', label: 'Sport' },
 ];
 
+const questionTypes = [
+  { key: 'ABCD type', label: 'ABCD type' },
+  { key: 'asocijacija', label: 'asocijacija' },
+  { key: 'slikovna', label: 'slikovna' },
+  { key: 'pitanje otvorenog odgovora', label: 'pitanje otvorenog odgovora' },
+];
+
 export default function ClientQuestionManager() {
   const [questions, setQuestions] = useState<Question[]>(initialQuestions);
   const [newQuestion, setNewQuestion] = useState({
     title: '',
     content: '',
     category: 'Category 1',
+    type: 'ABCD type',
   });
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState<string | 'all'>('all');
+  const [filterType, setFilterType] = useState<string | 'all'>('all');
   const [showDeleteId, setShowDeleteId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -69,14 +81,24 @@ export default function ClientQuestionManager() {
     } else {
       setQuestions([...questions, { id: Date.now(), ...newQuestion }]);
     }
-    setNewQuestion({ title: '', content: '', category: 'Category 1' });
+    setNewQuestion({
+      title: '',
+      content: '',
+      category: 'Category 1',
+      type: 'ABCD type',
+    });
     setIsModalOpen(false);
     setEditingId(null);
   }
 
   function openNewModal() {
     setEditingId(null);
-    setNewQuestion({ title: '', content: '', category: 'Category 1' });
+    setNewQuestion({
+      title: '',
+      content: '',
+      category: 'Category 1',
+      type: 'ABCD type',
+    });
     setIsModalOpen(true);
   }
 
@@ -88,6 +110,7 @@ export default function ClientQuestionManager() {
       title: q.title,
       content: q.content,
       category: q.category,
+      type: q.type,
     });
     setIsModalOpen(true);
   }
@@ -99,9 +122,10 @@ export default function ClientQuestionManager() {
         q.content.toLowerCase().includes(search.toLowerCase());
       const matchesCategory =
         filterCategory === 'all' || q.category === filterCategory;
-      return matchesSearch && matchesCategory;
+      const matchesType = filterType === 'all' || q.type === filterType;
+      return matchesSearch && matchesCategory && matchesType;
     });
-  }, [questions, search, filterCategory]);
+  }, [questions, search, filterCategory, filterType]);
 
   // Function to highlight search terms
   const highlightText = (text: string, searchTerm: string) => {
@@ -171,6 +195,21 @@ export default function ClientQuestionManager() {
               )
             )}
           </Select>
+          <Select
+            items={[{ key: 'all', label: 'All Types' }, ...questionTypes]}
+            selectedKeys={new Set([filterType])}
+            onSelectionChange={(keys) => {
+              const selectedValue = Array.from(keys)[0];
+              setFilterType(String(selectedValue));
+            }}
+            className='w-40'
+          >
+            {[{ key: 'all', label: 'All Types' }, ...questionTypes].map(
+              (item) => (
+                <SelectItem key={item.key}>{item.label}</SelectItem>
+              )
+            )}
+          </Select>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button onClick={openNewModal} className='ml-2'>
               Add Question
@@ -197,6 +236,7 @@ export default function ClientQuestionManager() {
                   <th className='text-left border-b px-4 py-3'>Title</th>
                   <th className='text-left border-b px-4 py-3'>Content</th>
                   <th className='text-left border-b px-4 py-3'>Category</th>
+                  <th className='text-left border-b px-4 py-3'>Type</th>
                   <th className='text-left border-b px-4 py-3'>Actions</th>
                 </tr>
               </thead>
@@ -210,6 +250,7 @@ export default function ClientQuestionManager() {
                       {highlightText(q.content, search)}
                     </td>
                     <td className='px-4 py-3 border-b'>{q.category}</td>
+                    <td className='px-4 py-3 border-b'>{q.type}</td>
                     <td className='px-4 py-3 border-b'>
                       <div className='flex gap-2'>
                         <motion.div
@@ -321,6 +362,22 @@ export default function ClientQuestionManager() {
                       className='w-full'
                     >
                       {categories.map((item) => (
+                        <SelectItem key={item.key}>{item.label}</SelectItem>
+                      ))}
+                    </Select>
+                    <Select
+                      items={questionTypes}
+                      selectedKeys={new Set([newQuestion.type])}
+                      onSelectionChange={(keys) => {
+                        const selectedValue = Array.from(keys)[0];
+                        setNewQuestion({
+                          ...newQuestion,
+                          type: String(selectedValue),
+                        });
+                      }}
+                      className='w-full'
+                    >
+                      {questionTypes.map((item) => (
                         <SelectItem key={item.key}>{item.label}</SelectItem>
                       ))}
                     </Select>
