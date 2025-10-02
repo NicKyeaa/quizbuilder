@@ -41,8 +41,6 @@ const categories = [
   { key: 'Tehnologija', label: 'Tehnologija' },
   { key: 'Literatura', label: 'Literatura' },
   { key: 'Film', label: 'Film' },
-  { key: 'Glazba', label: 'Glazba' },
-  { key: 'Sport', label: 'Sport' },
 ];
 
 const questionTypes = [
@@ -72,6 +70,19 @@ export default function ClientQuestionManager() {
   // (Select replaced with native select; no special handler needed)
 
   function handleAddQuestion() {
+    // Validate all fields are filled
+    if (
+      !newQuestion.title.trim() ||
+      !newQuestion.content.trim() ||
+      !newQuestion.category ||
+      !newQuestion.type
+    ) {
+      alert(
+        'All fields are required. Please fill in all fields before saving.'
+      );
+      return;
+    }
+
     if (editingId) {
       setQuestions(
         questions.map((q) =>
@@ -337,6 +348,8 @@ export default function ClientQuestionManager() {
                           title: (e.target as HTMLInputElement).value,
                         })
                       }
+                      isRequired
+                      label='Title *'
                     />
                     <Input
                       name='content'
@@ -348,6 +361,8 @@ export default function ClientQuestionManager() {
                           content: (e.target as HTMLInputElement).value,
                         })
                       }
+                      isRequired
+                      label='Content *'
                     />
                     <Select
                       items={categories}
@@ -360,6 +375,8 @@ export default function ClientQuestionManager() {
                         });
                       }}
                       className='w-full'
+                      isRequired
+                      label='Category *'
                     >
                       {categories.map((item) => (
                         <SelectItem key={item.key}>{item.label}</SelectItem>
@@ -376,6 +393,8 @@ export default function ClientQuestionManager() {
                         });
                       }}
                       className='w-full'
+                      isRequired
+                      label='Type *'
                     >
                       {questionTypes.map((item) => (
                         <SelectItem key={item.key}>{item.label}</SelectItem>
