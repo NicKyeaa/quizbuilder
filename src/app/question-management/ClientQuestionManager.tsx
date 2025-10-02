@@ -9,6 +9,8 @@ type Question = {
   content: string;
   category: string;
   type: string;
+  answers?: string[]; // For ABCD type questions (A, B, C, D)
+  answer?: string; // For other question types
 };
 
 const initialQuestions: Question[] = [
@@ -18,6 +20,7 @@ const initialQuestions: Question[] = [
     content: 'Choose the correct answer.',
     category: 'Category 1',
     type: 'ABCD type',
+    answers: ['Paris', 'London', 'Berlin', 'Madrid'],
   },
   {
     id: 2,
@@ -25,6 +28,7 @@ const initialQuestions: Question[] = [
     content: 'Select the author.',
     category: 'Category 2',
     type: 'ABCD type',
+    answers: ['Shakespeare', 'Dickens', 'Austen', 'Hemingway'],
   },
 ];
 
@@ -57,6 +61,8 @@ export default function ClientQuestionManager() {
     content: '',
     category: 'Category 1',
     type: 'ABCD type',
+    answers: ['', '', '', ''], // A, B, C, D for ABCD type
+    answer: '', // For other question types
   });
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState<string | 'all'>('all');
@@ -83,6 +89,19 @@ export default function ClientQuestionManager() {
       return;
     }
 
+    // Validate answer fields based on question type
+    if (newQuestion.type === 'ABCD type') {
+      if (!newQuestion.answers || newQuestion.answers.some(answer => !answer.trim())) {
+        alert('All 4 answer options (A, B, C, D) are required for ABCD type questions.');
+        return;
+      }
+    } else {
+      if (!newQuestion.answer || !newQuestion.answer.trim()) {
+        alert('Answer is required for this question type.');
+        return;
+      }
+    }
+
     if (editingId) {
       setQuestions(
         questions.map((q) =>
@@ -97,6 +116,8 @@ export default function ClientQuestionManager() {
       content: '',
       category: 'Category 1',
       type: 'ABCD type',
+      answers: ['', '', '', ''],
+      answer: '',
     });
     setIsModalOpen(false);
     setEditingId(null);
@@ -109,6 +130,8 @@ export default function ClientQuestionManager() {
       content: '',
       category: 'Category 1',
       type: 'ABCD type',
+      answers: ['', '', '', ''],
+      answer: '',
     });
     setIsModalOpen(true);
   }
@@ -122,6 +145,8 @@ export default function ClientQuestionManager() {
       content: q.content,
       category: q.category,
       type: q.type,
+      answers: q.answers || ['', '', '', ''],
+      answer: q.answer || '',
     });
     setIsModalOpen(true);
   }
@@ -248,6 +273,7 @@ export default function ClientQuestionManager() {
                   <th className='text-left border-b px-4 py-3'>Content</th>
                   <th className='text-left border-b px-4 py-3'>Category</th>
                   <th className='text-left border-b px-4 py-3'>Type</th>
+                  <th className='text-left border-b px-4 py-3'>Answer</th>
                   <th className='text-left border-b px-4 py-3'>Actions</th>
                 </tr>
               </thead>
@@ -262,6 +288,16 @@ export default function ClientQuestionManager() {
                     </td>
                     <td className='px-4 py-3 border-b'>{q.category}</td>
                     <td className='px-4 py-3 border-b'>{q.type}</td>
+                    <td className='px-4 py-3 border-b'>
+                      {q.type === 'ABCD type'
+                        ? q.answers?.map((answer, index) => (
+                            <div key={index} className='text-xs'>
+                              {String.fromCharCode(65 + index)}: {answer}
+                            </div>
+                          ))
+                        : q.answer
+                      }
+                    </td>
                     <td className='px-4 py-3 border-b'>
                       <div className='flex gap-2'>
                         <motion.div
@@ -400,6 +436,41 @@ export default function ClientQuestionManager() {
                         <SelectItem key={item.key}>{item.label}</SelectItem>
                       ))}
                     </Select>
+                    {newQuestion.type === 'ABCD type' ? (
+                      <div className='space-y-2'>
+                        <h4 className='text-sm font-medium'>Answer Options *</h4>
+                        {['A', 'B', 'C', 'D'].map((letter, index) => (
+                          <Input
+                            key={letter}
+                            placeholder={`Option ${letter}`}
+                            value={newQuestion.answers?.[index] || ''}
+                            onChange={(e) =>
+                              setNewQuestion({
+                                ...newQuestion,
+                                answers: newQuestion.answers?.map((ans, i) =>
+                                  i === index ? (e.target as HTMLInputElement).value : ans
+                                ) || ['', '', '', ''],
+                              })
+                            }
+                            isRequired
+                            label={`Option ${letter} *`}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <Input
+                        placeholder='Answer'
+                        value={newQuestion.answer || ''}
+                        onChange={(e) =>
+                          setNewQuestion({
+                            ...newQuestion,
+                            answer: (e.target as HTMLInputElement).value,
+                          })
+                        }
+                        isRequired
+                        label='Answer *'
+                      />
+                    )}
                   </motion.div>
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
